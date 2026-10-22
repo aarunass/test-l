@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day-Ahead Clearing Price</title>
+  <meta name="description" content="Calculate the hourly Nord Pool day-ahead clearing price from aggregated supply and demand curves.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="wrap">
+      <h1>Day-Ahead Clearing Price</h1>
+      <p class="lede">Upload a Nord Pool aggregated order file (<code>AggregatedOrder_…_PriceCurves_….csv</code>) to get the price at the intersection of the supply and demand curves for every trading period.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card upload" id="drop-zone">
+      <input type="file" id="file-input" accept=".csv,text/csv" hidden>
+      <div class="upload-body">
+        <svg class="upload-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong>Drop the CSV file here</strong> or <button type="button" class="link-button" id="browse-button">choose a file</button></p>
+        <p class="muted small">The file is read and processed locally in your browser. Nothing is uploaded or saved.</p>
+      </div>
+      <p class="file-name" id="file-name" hidden></p>
+      <p class="error" id="error" role="alert" hidden></p>
+    </section>
+
+    <div id="results" hidden>
+      <section class="stats" id="stats"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Clearing price by period</h2>
+          <span class="muted small" id="series-label"></span>
+        </div>
+        <div class="chart-box"><canvas id="price-chart" aria-label="Clearing price by period"></canvas></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2 id="curve-title">Supply and demand</h2>
+          <div class="controls">
+            <label class="select-label">Period
+              <select id="period-select"></select>
+            </label>
+            <label class="toggle"><input type="checkbox" id="zoom-toggle" checked> Zoom to intersection</label>
+          </div>
+        </div>
+        <div class="chart-box tall"><canvas id="curve-chart" aria-label="Supply and demand curves"></canvas></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Results</h2>
+          <button type="button" class="button" id="export-button">Download results (CSV)</button>
+        </div>
+        <div class="table-scroll">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>Date (CET)</th>
+                <th>Area</th>
+                <th class="num">Hour</th>
+                <th>Period (CET)</th>
+                <th>Period (Baltic local)</th>
+                <th class="num">Price, EUR/MWh</th>
+                <th class="num">Volume, MWh</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card method">
+        <h2>Method</h2>
+        <p>For each trading period, the supply points (S) and demand points (D) are ordered by <code>SeqNr</code> and joined with straight lines, as on the Nord Pool curve charts. Demand volume falls and supply volume rises as the price goes up, so the excess demand <em>D(p) − S(p)</em> decreases with price. The clearing price is the price at which it reaches zero:</p>
+        <ul>
+          <li>if the curves cross on a sloped segment, the price is interpolated linearly between the neighbouring curve points;</li>
+          <li>if they cross on a flat (horizontal) segment, the price is that segment's price;</li>
+          <li>if they overlap along a vertical segment, the price range is ambiguous and the midpoint is used (flagged in the table).</li>
+        </ul>
+        <p>Prices are rounded to two decimals for display; the downloaded CSV keeps four.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="wrap muted small">Data stays in this browser tab and is discarded when you close or reload it.</footer>
+</body>
+</html>
