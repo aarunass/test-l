@@ -12,4 +12,4 @@ Expected columns: `DeliveryDateCET, Area, SupplyDemand, HourIndex_1_25, StartTim
 
 ## Deployment
 
-Cloudflare Pages serves the repository root as-is: no build command, output directory `/`. Files: `index.html`, `styles.css`, `app.js`. Data files (`*.csv`, `*.xlsx`) are git-ignored.
+Deployed by Cloudflare Workers Builds from `main`. `wrangler.jsonc` publishes the static files in `public/` (`index.html`, `styles.css`, `app.js`) as Worker assets; there is no build step. Data files (`*.csv`, `*.xlsx`) are git-ignored.
